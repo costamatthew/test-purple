@@ -1,24 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import { FormSurvey } from "./components/Form";
+
+import { api } from "./services/api";
+
+import "./App.css";
+
+interface OptionSet {
+  id: number;
+  text: string;
+  option_type: string;
+  order: number;
+  question: number;
+}
+
+interface QuestionData {
+  id: number;
+  name: string;
+  text: string;
+  order: number;
+  option_set: OptionSet[];
+}
 
 function App() {
+  const [get, setGet] = useState<QuestionData[]>([]);
+
+  useEffect(() => {
+    setGet(api.questions);
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App-header">
+      <FormSurvey questions={get} />
     </div>
   );
 }
