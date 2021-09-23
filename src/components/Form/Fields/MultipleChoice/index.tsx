@@ -1,3 +1,14 @@
-export function MultipleChoice() {
-  return <input type="checkbox" />;
+import styles from "./Styles.module.scss";
+
+interface TextProps {
+  text: string;
+}
+
+export function MultipleChoice({ text }: TextProps) {
+  return (
+    <div className={styles.Container}>
+      <input type="checkbox" />
+      <p>{text}</p>
+    </div>
+  );
 }

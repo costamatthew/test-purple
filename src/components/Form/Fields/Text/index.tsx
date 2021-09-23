@@ -1,3 +1,7 @@
 export function Text() {
-  return <input type="text" />;
+  return (
+    <>
+      <input type="text" />
+    </>
+  );
 }

@@ -25,15 +25,21 @@ interface QuestionsProps {
 
 export function FormSurvey({ questions }: QuestionsProps) {
   return (
-    <div className={styles.Container}>
+    <form className={styles.FormContainer}>
       {questions.map((item) => (
         <div key={item.id}>
           <h3>{item.name}</h3>
+          <p>{item.text}</p>
+
           {item.option_set.map((type) =>
-            type.option_type === "OPEN_TEXT" ? <Text /> : <MultipleChoice />
+            type.option_type === "OPEN_TEXT" ? (
+              <Text />
+            ) : (
+              <MultipleChoice text={type.text} />
+            )
           )}
         </div>
       ))}
-    </div>
+    </form>
   );
 }

@@ -1,23 +1,16 @@
-.Container {
+.FormContainer {
   width: 30rem;
   height: auto;
 
   margin: 2rem;
   padding: 2rem;
 
-  background-color: #454789;
+  background-color: #282828;
+  color: #fff;
 
-  form {
-    width: 90%;
-    height: 90%;
+  font-family: "Roboto", sans-serif;
 
-    margin: 0 auto;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    input {
-    }
+  p {
+    font-size: 1rem;
   }
 }
