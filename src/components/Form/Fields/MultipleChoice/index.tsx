@@ -8,7 +8,7 @@ export function MultipleChoice({ text }: TextProps) {
   return (
     <div className={styles.Container}>
       <input type="checkbox" />
-      <p>{text}</p>
+      <label>{text}</label>
     </div>
   );
 }
