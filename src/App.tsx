@@ -25,9 +25,8 @@ function App() {
   const [get, setGet] = useState<QuestionData[]>([]);
 
   useEffect(() => {
-    //const sort = api.questions.sort((a, b) => a.order - b.order);
-
-    setGet(api.questions);
+    const sortQuestions = api.questions.sort((a, b) => a.order - b.order);
+    setGet(sortQuestions);
   }, []);
 
   return (

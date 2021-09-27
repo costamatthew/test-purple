@@ -1,7 +1,5 @@
-import { useState, useRef } from "react";
-import * as yup from "yup";
-import { useForm, Resolver } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 import styles from "./Styles.module.scss";
 
@@ -25,41 +23,76 @@ interface QuestionsProps {
   questions: QuestionData[];
 }
 
-type SendQuestionBody = {
+interface SendQuestionBody {
+  id: number;
+  text?: string;
+}
+
+interface Teste {
+  id: number;
+  idQuestion?: number;
+  text?: string;
+}
+
+type TesteFinal = {
   id: number;
   text?: string;
 };
 
-// interface SendQuestionBody {
-//   id: boolean;
-//   text?: string;
-// }
-
-type SendQuestion = {
-  options: SendQuestionBody[];
-};
+interface TesteO {
+  option: TesteFinal[];
+}
 
 export function FormSurvey({ questions }: QuestionsProps) {
-  let schema = yup.object().shape({
-    options: yup
-      .array()
-      .of(
-        yup.object().shape({
-          id: yup.number(),
-        })
-      )
-      .required("Must choose at least one option."),
-  });
+  const [json, setJson] = useState<Teste[]>([]);
+  const [openText, setOpenText] = useState("");
+  const [jsonFinal, setJsonFinal] = useState({} as TesteO);
 
-  const { register, handleSubmit, formState } = useForm({
-    resolver: yupResolver(schema),
-  });
+  useEffect(() => {
+    console.log(json);
+  }, [json, jsonFinal]);
 
-  const { errors } = formState;
+  useEffect(() => {
+    console.log(jsonFinal);
+  }, [jsonFinal]);
 
-  const submitForm = (data: SendQuestionBody) => {
-    console.log("Submission", data);
+  const handleChange = ({ id, question }: OptionSet) => {
+    const anotherOption = json.filter((item) => item.idQuestion !== question);
+
+    if (anotherOption) {
+      setJson([
+        ...anotherOption,
+        {
+          id: id,
+          idQuestion: question,
+        },
+      ]);
+
+      return;
+    }
+
+    setJson([
+      ...json,
+      {
+        id: id,
+        idQuestion: question,
+      },
+    ]);
   };
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SendQuestionBody>();
+
+  async function submitForm() {
+    const removeIdQuestions = await json.filter((item) => item.idQuestion);
+
+    setJsonFinal({ option: [...removeIdQuestions] });
+
+    console.log("final", jsonFinal);
+  }
 
   return (
     <form onSubmit={handleSubmit(submitForm)} className={styles.FormContainer}>
@@ -70,17 +103,22 @@ export function FormSurvey({ questions }: QuestionsProps) {
           <label htmlFor={item.name}>
             {item.option_set.map((type) =>
               type.option_type === "OPEN_TEXT" ? (
-                <input type="text" />
+                <div key={`${item.id}: ${type.id}`}>
+                  <input type="text" />
+                </div>
               ) : (
-                <>
+                <div key={`${item.id}: ${type.id}`}>
                   <input
-                    {...register("id")}
+                    key={`${item.id}: ${type.id}`}
                     type="radio"
+                    {...(register("id"), { required: true })}
+                    onChange={() => handleChange(type)}
                     name={item.name}
                     value={type.id}
                   />
                   <p>{type.text}</p>
-                </>
+                  <p>{errors.id?.message}</p>
+                </div>
               )
             )}
           </label>
