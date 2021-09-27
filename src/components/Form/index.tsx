@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 
 import styles from "./Styles.module.scss";
@@ -48,9 +48,9 @@ export function FormSurvey({ questions }: QuestionsProps) {
   const [openText, setOpenText] = useState("");
   const [jsonFinal, setJsonFinal] = useState({} as TesteO);
 
-  useEffect(() => {
-    console.log(json);
-  }, [json, jsonFinal]);
+  const handleText = (event: ChangeEvent<HTMLInputElement>) => {
+    setOpenText(event.currentTarget.value);
+  };
 
   useEffect(() => {
     console.log(jsonFinal);
@@ -87,9 +87,18 @@ export function FormSurvey({ questions }: QuestionsProps) {
   } = useForm<SendQuestionBody>();
 
   async function submitForm() {
-    const removeIdQuestions = await json.filter((item) => item.idQuestion);
+    let data: TesteFinal[] = [];
+    const lastIndexJson = json.length;
+    // eslint-disable-next-line
+    const removeIdQuestions = json.map((item, index) => {
+      if (lastIndexJson === index + 1) {
+        data.push({ id: item.id, text: openText });
+      } else {
+        data.push({ id: item.id });
+      }
+    });
 
-    setJsonFinal({ option: [...removeIdQuestions] });
+    setJsonFinal({ option: [...data] });
 
     console.log("final", jsonFinal);
   }
@@ -104,7 +113,7 @@ export function FormSurvey({ questions }: QuestionsProps) {
             {item.option_set.map((type) =>
               type.option_type === "OPEN_TEXT" ? (
                 <div key={`${item.id}: ${type.id}`}>
-                  <input type="text" />
+                  <input type="text" onChange={(event) => handleText(event)} />
                 </div>
               ) : (
                 <div key={`${item.id}: ${type.id}`}>
