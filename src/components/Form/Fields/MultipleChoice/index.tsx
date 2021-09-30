@@ -1,25 +1,46 @@
-import { RegisterOptions } from "react-hook-form";
-import styles from "./Styles.module.scss";
-
-interface TextProps {
+interface OptionSet {
+  id: number;
   text: string;
-  register: RegisterOptions;
+  option_type: string;
+  order: number;
+  question: number;
 }
 
-export function MultipleChoice({ text }: TextProps) {
+interface QuestionData {
+  id: number;
+  name: string;
+  text: string;
+  order: number;
+  option_set: OptionSet[];
+}
+
+interface ItemProps {
+  register: any;
+  errors: any;
+  handleChange: (type: OptionSet) => void;
+  item: QuestionData;
+  type: OptionSet;
+}
+
+export function MultipleChoice({
+  errors,
+  register,
+  handleChange,
+  item,
+  type,
+}: ItemProps) {
   return (
-    <div className={styles.Container}>
-      <input type="checkbox" />
-      <label>{text}</label>
+    <div className="col-sm-10">
+      <input
+        className="form-check-input"
+        type="radio"
+        name={item.name}
+        value={type.id}
+        {...(register("id"), { required: true })}
+        onChange={() => handleChange(type)}
+      />
+      <label className="form-check-label">{type.text}</label>
+      <p>{errors.id?.message}</p>
     </div>
   );
-}
-
-{
-  /* <input
-          ref={register({ required: 'This is required' })}
-          name="example_1"
-          value={true}
-          type="checkbox"
-        /> */
 }

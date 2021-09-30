@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FormSurvey } from "./components/Form";
 
-import { api } from "./services/api";
+import { API } from "./services/api";
 
 import "./App.css";
 
@@ -22,16 +22,20 @@ interface QuestionData {
 }
 
 function App() {
-  const [get, setGet] = useState<QuestionData[]>([]);
+  const [data, setData] = useState<QuestionData[]>([]);
+
+  async function handleApiData() {
+    const sortQuestions = API.questions.sort((a, b) => a.order - b.order);
+    setData(sortQuestions);
+  }
 
   useEffect(() => {
-    const sortQuestions = api.questions.sort((a, b) => a.order - b.order);
-    setGet(sortQuestions);
+    handleApiData();
   }, []);
 
   return (
     <div className="App-header">
-      <FormSurvey questions={get} />
+      <FormSurvey questions={data} />
     </div>
   );
 }

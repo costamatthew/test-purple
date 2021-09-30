@@ -1,6 +1,12 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 
+import axios from "axios";
+
+import { MultipleChoice } from "./Fields/MultipleChoice";
+import { Text } from "./Fields/Text";
+
+import "bootstrap/dist/css/bootstrap.min.css";
 import styles from "./Styles.module.scss";
 
 interface OptionSet {
@@ -28,39 +34,43 @@ interface SendQuestionBody {
   text?: string;
 }
 
-interface Teste {
+interface TakingUserChoices {
   id: number;
   idQuestion?: number;
   text?: string;
 }
 
-type TesteFinal = {
+type SurveyData = {
   id: number;
   text?: string;
 };
 
-interface TesteO {
-  option: TesteFinal[];
+interface SurveyDataOption {
+  option: SurveyData[];
 }
 
 export function FormSurvey({ questions }: QuestionsProps) {
-  const [json, setJson] = useState<Teste[]>([]);
+  const [takingUserChoices, setTakingUserChoices] = useState<
+    TakingUserChoices[]
+  >([]);
+  const [surveyData, setSurveyData] = useState({} as SurveyDataOption);
   const [openText, setOpenText] = useState("");
-  const [jsonFinal, setJsonFinal] = useState({} as TesteO);
 
-  const handleText = (event: ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    console.log(surveyData);
+  }, [surveyData]);
+
+  const handleText = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setOpenText(event.currentTarget.value);
   };
 
-  useEffect(() => {
-    console.log(jsonFinal);
-  }, [jsonFinal]);
-
   const handleChange = ({ id, question }: OptionSet) => {
-    const anotherOption = json.filter((item) => item.idQuestion !== question);
+    const anotherOption = takingUserChoices.filter(
+      (item) => item.idQuestion !== question
+    );
 
     if (anotherOption) {
-      setJson([
+      setTakingUserChoices([
         ...anotherOption,
         {
           id: id,
@@ -71,8 +81,8 @@ export function FormSurvey({ questions }: QuestionsProps) {
       return;
     }
 
-    setJson([
-      ...json,
+    setTakingUserChoices([
+      ...takingUserChoices,
       {
         id: id,
         idQuestion: question,
@@ -86,54 +96,59 @@ export function FormSurvey({ questions }: QuestionsProps) {
     formState: { errors },
   } = useForm<SendQuestionBody>();
 
-  async function submitForm() {
-    let data: TesteFinal[] = [];
-    const lastIndexJson = json.length;
+  function submitForm() {
+    let data: SurveyData[] = [];
+    const lastIndexData = takingUserChoices.length;
+
     // eslint-disable-next-line
-    const removeIdQuestions = json.map((item, index) => {
-      if (lastIndexJson === index + 1) {
+    const removeIdQuestions = takingUserChoices.map((item, index) => {
+      if (lastIndexData === index + 1) {
         data.push({ id: item.id, text: openText });
       } else {
         data.push({ id: item.id });
       }
     });
 
-    setJsonFinal({ option: [...data] });
+    setSurveyData({ option: [...data] });
 
-    console.log("final", jsonFinal);
+    const api = axios.create({
+      baseURL:
+        "https://www.purplemetrics.com.br/api/v1/save_answers/5c56a367-a16d-47c2-b369-076b7595903c/",
+    });
+
+    api
+      .post("user=%3D1234", surveyData)
+      .then((response) => console.log(response));
   }
 
   return (
     <form onSubmit={handleSubmit(submitForm)} className={styles.FormContainer}>
-      {questions.map((item) => (
-        <div key={item.id}>
-          <h4>{item.name}</h4>
-          <p>{item.text}</p>
-          <label htmlFor={item.name}>
+      <div className="p-3">
+        {questions.map((item) => (
+          <div className={styles.GroupRadio} key={item.id}>
+            <h2>{item.name}</h2>
+            <p>{item.text}</p>
+
             {item.option_set.map((type) =>
               type.option_type === "OPEN_TEXT" ? (
-                <div key={`${item.id}: ${type.id}`}>
-                  <input type="text" onChange={(event) => handleText(event)} />
-                </div>
+                <Text key={`${item.id}: ${type.id}`} handleText={handleText} />
               ) : (
-                <div key={`${item.id}: ${type.id}`}>
-                  <input
-                    key={`${item.id}: ${type.id}`}
-                    type="radio"
-                    {...(register("id"), { required: true })}
-                    onChange={() => handleChange(type)}
-                    name={item.name}
-                    value={type.id}
-                  />
-                  <p>{type.text}</p>
-                  <p>{errors.id?.message}</p>
-                </div>
+                <MultipleChoice
+                  key={`${item.id}: ${type.id}`}
+                  item={item}
+                  type={type}
+                  register={register}
+                  handleChange={handleChange}
+                  errors={errors}
+                />
               )
             )}
-          </label>
-        </div>
-      ))}
-      <button type="submit">Teste</button>
+          </div>
+        ))}
+        <button type="submit" className="btn btn-success btn-lg">
+          Enviar
+        </button>
+      </div>
     </form>
   );
 }

@@ -1,4 +1,4 @@
-export const api = {
+export const API = {
   questions: [
     {
       id: 3,
