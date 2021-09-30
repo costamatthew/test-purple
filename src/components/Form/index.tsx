@@ -56,10 +56,6 @@ export function FormSurvey({ questions }: QuestionsProps) {
   const [surveyData, setSurveyData] = useState({} as SurveyDataOption);
   const [openText, setOpenText] = useState("");
 
-  useEffect(() => {
-    console.log(surveyData);
-  }, [surveyData]);
-
   const handleText = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setOpenText(event.currentTarget.value);
   };
@@ -117,7 +113,9 @@ export function FormSurvey({ questions }: QuestionsProps) {
     });
 
     api
-      .post("user=%3D1234", surveyData)
+      .post("user=1234", surveyData, {
+        headers: { "Content-Type": "application/json" },
+      })
       .then((response) => console.log(response));
   }
 

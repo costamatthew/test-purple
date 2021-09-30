@@ -25,12 +25,16 @@ function App() {
   const [data, setData] = useState<QuestionData[]>([]);
 
   async function handleApiData() {
-    const sortQuestions = API.questions.sort((a, b) => a.order - b.order);
-    setData(sortQuestions);
+    await API.get("/user=1234?fields=them").then((response) => {
+      setData(
+        response.data.questions.sort((a: any, b: any) => a.order - b.order)
+      );
+    });
   }
 
   useEffect(() => {
     handleApiData();
+    console.log(data);
   }, []);
 
   return (
